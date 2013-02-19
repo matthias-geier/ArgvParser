@@ -1,0 +1,42 @@
+ArgvParser is a small library for easily handling the basic
+needs when using command line arguments.
+
+This small snippet will show how it works.
+Assume the arguments are a port and the script is called foo.
+
+$ foo -p 22
+
+The way to build this with ArgvParser is:
+
+  require 'argv_parser'
+
+  parser = ArgvParser.new
+  parser.hook("-p", "-p [port number]", Integer, {:mandatory => true}) do |p,v|
+    puts "Opening ssh on port #{v}."
+  end
+  parser.hook("-ip", "-ip [ip address]", String, {}) do |p,v|
+    puts "Trying this ip address #{v}."
+  end
+  parser.parse! ARGV
+
+First off the new instance of the ArgvParser into which we can
+hook any series of argument pairs.
+  hook is defined as:
+    argument short name
+    argument long name
+    argument type [nil, Array (comma-delimit), Integer, Float, String]
+    options :mandatory => boolean
+  block takes p as ArgvParser instance and v as value
+
+  parse! is defined as:
+    array of arguments
+  
+  help is defined as:
+    no arguments
+
+If you require a callback for the hooks, you can create a child class
+from ArgvParser and access it via p inside the block.
+
+Calling help will show the regular help, which can be overridden in
+a child class.
+
