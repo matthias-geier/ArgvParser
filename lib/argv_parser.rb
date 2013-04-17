@@ -14,7 +14,7 @@ class ArgvParser
       :long => long,
       :type => type,
       :opts => options,
-      :yield => Proc.new {|v| yield(v) }
+      :yield => Proc.new {|p, v| yield(p, v) }
     }
     @l_short = short.length + 1 if @l_short < short.length + 1
     @l_long = long.length + 1 if @l_long < long.length + 1
@@ -44,7 +44,7 @@ class ArgvParser
     while i < args.length
       if v = @args[args[i].downcase]
         @mandatory.delete args[i].downcase
-        
+
         n = nil
         if v[:type]
           raise ArgumentError.new("argument for #{args[i].downcase} missing") if i+1 >= args.length
@@ -70,12 +70,12 @@ class ArgvParser
     if not @mandatory.empty?
       raise ArgumentError.new("mandatory #{@mandatory[0]} is missing")
     end
-    
+
     if executor.empty?
       help
     else
       executor.each do |e|
-        e[0].call(e[1])
+        e[0].call(self, e[1])
       end
     end
     rescue Exception => e
