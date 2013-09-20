@@ -4,7 +4,11 @@ needs when using command line arguments.
 This small snippet will show how it works.
 Assume the arguments are a port and the script is called foo.
 
-$ foo -p 22
+  $ foo -p 22 -- ./my.file
+
+or alternatively
+
+  $ foo -p 22 ./my.file
 
 The way to build this with ArgvParser is:
 
@@ -17,6 +21,9 @@ The way to build this with ArgvParser is:
   parser.hook("-ip", "-ip [ip address]", String, {}) do |p,v|
     puts "Trying this ip address #{v}."
   end
+  parser.hook("--", "-- [file name], String, {:mandatory => true}) do |p,v|
+    puts "Appending on file #{v}"
+  end
   parser.parse! ARGV
 
 First off the new instance of the ArgvParser into which we can
@@ -27,15 +34,19 @@ hook any series of argument pairs.
     argument type [nil, Array (comma-delimit), Integer, Float, String]
     options :mandatory => boolean
   block takes p as ArgvParser instance and v as value
+  a -- hook is a special case which determines a file and, when found at the
+  end of the ARGV params, is optional
 
   parse! is defined as:
     array of arguments
-  
+
   help is defined as:
     no arguments
 
 If you require a callback for the hooks, you can create a child class
 from ArgvParser and access it via p inside the block.
+
+The call order is set by the order you append the hooks.
 
 Calling help will show the regular help, which can be overridden in
 a child class.

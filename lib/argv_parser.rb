@@ -27,7 +27,8 @@ class ArgvParser
       (@l_short-k.length).times { spaces << " " }
       spaces2 = ""
       (@l_long-v[:long].length).times { spaces2 << " " }
-      puts "#{k}#{spaces} #{v[:long]}#{spaces2} mandatory: #{v[:opts][:mandatory] == true}"
+      puts "#{k}#{spaces} #{v[:long]}#{spaces2} mandatory: \
+        #{v[:opts][:mandatory] == true}"
     end
   end
 
@@ -42,27 +43,38 @@ class ArgvParser
     end
 
     while i < args.length
-      if v = @args[args[i].downcase]
-        @mandatory.delete args[i].downcase
+      k = args[i].downcase
+      v = i+1 < args.length ? args[i+1] : nil
+      hook = @args[k]
+      if !hook and !v
+        hook = @args["--"]
+        v = k
+        k = "--"
+      end
+
+      if hook
+        @mandatory.delete(k)
 
         n = nil
-        if v[:type]
-          raise ArgumentError.new("argument for #{args[i].downcase} missing") if i+1 >= args.length
+        if hook[:type]
+          unless v
+            raise ArgumentError.new("argument for #{k} missing")
+          end
           i += 1
-          case v[:type].to_s
+          case hook[:type].to_s
             when "Array"
-              n = args[i].split ','
+              n = v.split ','
             when "Float"
-              n = args[i].to_f
+              n = v.to_f
             when "Integer"
-              n = args[i].to_i
+              n = v.to_i
             else
-              n = $1 if args[i] =~ /^\"?(.*)\"?$/
+              n = $1 if v =~ /^\"?(.*)\"?$/
             end
         end
-        executor.push [v[:yield], n]
+        executor.push [hook[:yield], n]
       else
-        raise ArgumentError.new("argument #{args[i].downcase} unknown")
+        raise ArgumentError.new("argument #{k} unknown")
       end
       i += 1
     end
