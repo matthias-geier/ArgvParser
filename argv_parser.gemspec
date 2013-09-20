@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "ArgvParser"
-  s.version = '1.0.3'
+  s.version = '1.1.0'
   s.summary = "A basic parser for command line arguments."
   s.author = "Matthias Geier"
   s.homepage = "https://github.com/matthias-geier/ArgvParser"
